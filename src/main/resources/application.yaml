@@ -1,0 +1,23 @@
+server:
+  port: 8082
+  error:
+    include-stacktrace: never
+spring:
+  data:
+    mongodb:
+      uri: ${ECRITIC_MONGO_URL:mongodb://root:root@localhost:27017/ecritic?authSource=admin}
+      database: ecritic
+  kafka:
+    bootstrap-servers: ${ECRITIC_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+  redis:
+    host: ${REDIS_HOST:127.0.0.1}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:af1ce60c0f7}
+  error:
+    include-stacktrace: never
+  application:
+    properties:
+      jwtSecret: ${ECRITIC_JWT_SECRET:e78f13ae716eb09408feaee9b0a9ee6fab15ab1693916937f544aaa52c1fb1109a8f159d596ff1664a96fe0c0f8027550671018cfedb725d657c6cf831659aac}
+      jwtRefreshSecret: ${ECRITIC_JWT_REFRESH_SECRET:05b18f29f167f2b6d6ffc94a8bf31c1b106e02c2661a760786637a29982cc21ae9a6470676db873a271f3f2473e274848477d4c9d6f70da5b52a84818e82cee8}
+      jwtExpiration: ${ECRITIC_JWT_EXPIRATION:600}
+      jwtRefreshExpiration: ${ECRITIC_JWT_REFRESH_EXPIRATION:604800}
