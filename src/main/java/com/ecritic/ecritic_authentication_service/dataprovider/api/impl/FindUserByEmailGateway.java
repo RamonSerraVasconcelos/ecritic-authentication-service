@@ -21,6 +21,8 @@ public class FindUserByEmailGateway implements FindUserByEmailBoundary {
     private final UserEntityMapper userEntityMapper;
 
     public Optional<User> execute(String email) {
+        log.info("Retrieving user authorization info for email [{}]", email);
+
         try {
             UserEntity userEntity = userClient.getUserAuthorizationInfo(email);
 

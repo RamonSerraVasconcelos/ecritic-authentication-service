@@ -23,6 +23,8 @@ public class SignInUserUseCase {
 
     private final GenerateAccessTokenUseCase generateAccessTokenUseCase;
 
+    private final GenerateRefreshTokenUseCase generateRefreshTokenUseCase;
+
     private final BCryptPasswordEncoder bcrypt;
 
     public AuthorizationData execute(String email, String password) {
@@ -31,25 +33,30 @@ public class SignInUserUseCase {
         Optional<User> userOptional = findUserByEmailBoundary.execute(email);
 
         if (userOptional.isEmpty()) {
+            log.error("User with email [{}] not found", email);
             throw new BusinessViolationException(ErrorResponseCode.ECRITICAUTH_07);
         }
 
         User user = userOptional.get();
 
         if (!user.isActive()) {
+            log.error("User with id [{}] is not active", user.getId());
             throw new BusinessViolationException(ErrorResponseCode.ECRITICAUTH_08);
         }
 
         boolean isPasswordValid = bcrypt.matches(password, user.getPassword());
 
         if (!isPasswordValid) {
+            log.error("Invalid password for userId [{}]", user.getId());
             throw new BusinessViolationException(ErrorResponseCode.ECRITICAUTH_07);
         }
 
         AccessToken accessToken = generateAccessTokenUseCase.execute(user);
+        RefreshToken refreshToken = generateRefreshTokenUseCase.execute(user);
 
         return AuthorizationData.builder()
                 .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 }

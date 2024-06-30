@@ -23,8 +23,8 @@ public class AuthController {
     private final AuthorizationResponseDataMapper authorizationResponseDataMapper;
 
     @PostMapping(path = "/login", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<AuthorizationResponseData> login(@RequestParam String email,
-                                                                   @RequestParam String password) {
+    public ResponseEntity<AuthorizationResponseData> login(@RequestParam("email") String email,
+                                                           @RequestParam("password") String password) {
 
         AuthorizationData authorizationData = signInUserUseCase.execute(email, password);
 

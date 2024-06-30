@@ -12,6 +12,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -24,12 +26,15 @@ public class GenerateAccessTokenUseCase {
     private final ApplicationProperties applicationProperties;
 
     public AccessToken execute(User user) {
-        log.info("Generating access token for userId: [{}]", user.getEmail());
+        log.info("Generating access token for userId: [{}]", user.getId());
 
         try {
+            Set<String> auds = new HashSet<>();
+            auds.add("ecritic");
+
             AccessToken accessToken = new AccessToken();
             accessToken.setId(UUID.randomUUID());
-            accessToken.setAud("ecritic");
+            accessToken.setAud(auds);
             accessToken.setIssuer("ecritic");
             accessToken.setUser(user);
             accessToken.setIssuedAt(LocalDateTime.now());
