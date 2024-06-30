@@ -32,31 +32,31 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> httpMessageNotReadableExceptionHandler(HttpMessageNotReadableException ex) {
         log.warn("Request INFO - Response returning violations found: [{}]", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildResponseError(ErrorResponseCode.ECRITICUSERS_01, ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildResponseError(ErrorResponseCode.ECRITICAUTH_01, ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> methodArgumentTypeMismatchExceptionHandler(MethodArgumentTypeMismatchException ex) {
         log.warn("Request INFO - Response returning violations found: [{}]", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildResponseError(ErrorResponseCode.ECRITICUSERS_01, ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildResponseError(ErrorResponseCode.ECRITICAUTH_01, ex.getMessage()));
     }
 
     @ExceptionHandler(MissingRequestHeaderException.class)
     public ResponseEntity<ErrorResponse> missingRequestHeaderExceptionHandler(MissingRequestHeaderException ex) {
         log.warn("Request INFO - Response returning violations found: [{}]", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildResponseError(ErrorResponseCode.ECRITICUSERS_02, ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildResponseError(ErrorResponseCode.ECRITICAUTH_02, ex.getMessage()));
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ErrorResponse> missingServletRequestParameterExceptionHandler(MissingServletRequestParameterException ex) {
         log.warn("Request INFO - Response returning violations found: [{}]", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildResponseError(ErrorResponseCode.ECRITICUSERS_01, ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildResponseError(ErrorResponseCode.ECRITICAUTH_01, ex.getMessage()));
     }
 
     @ExceptionHandler(ResourceViolationException.class)
     public ResponseEntity<ErrorResponse> resourceViolationExceptionHandler(ResourceViolationException ex) {
         log.warn("Request INFO - Response returning violations found: [{}]", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildResponseError(ErrorResponseCode.ECRITICUSERS_06, ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildResponseError(ErrorResponseCode.ECRITICAUTH_06, ex.getMessage()));
     }
 
     @ExceptionHandler(UnauthorizedAccessException.class)
@@ -66,12 +66,12 @@ public class ApplicationExceptionHandler {
 
     @ExceptionHandler(FileSizeLimitExceededException.class)
     public ResponseEntity<ErrorResponse> fileSizeLimitExceededExceptionHandler(FileSizeLimitExceededException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildResponseError(ErrorResponseCode.ECRITICUSERS_01, ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildResponseError(ErrorResponseCode.ECRITICAUTH_01, ex.getMessage()));
     }
 
     @ExceptionHandler(MultipartException.class)
     public ResponseEntity<ErrorResponse> multipartExceptionHandler(MultipartException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildResponseError(ErrorResponseCode.ECRITICUSERS_01, ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildResponseError(ErrorResponseCode.ECRITICAUTH_01, ex.getMessage()));
     }
 
     @ExceptionHandler(EntityConflictException.class)
