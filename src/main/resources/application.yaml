@@ -19,3 +19,8 @@ spring:
       jwtRefreshSecret: ${ECRITIC_JWT_REFRESH_SECRET:b+q0FOnXYjUUGOKOOVpz/v1EDZd8ovG/9PWF8iI9cEM=}
       jwtExpiration: ${ECRITIC_JWT_EXPIRATION:600}
       jwtRefreshExpiration: ${ECRITIC_JWT_REFRESH_EXPIRATION:604800}
+
+clients:
+  user:
+    name: users-client
+    url: ${ECRITIC_USER_URL:http://localhost:8081}
