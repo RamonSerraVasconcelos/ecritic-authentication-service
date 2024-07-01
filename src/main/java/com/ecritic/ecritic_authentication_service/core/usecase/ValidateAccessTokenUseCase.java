@@ -37,6 +37,8 @@ public class ValidateAccessTokenUseCase {
             accessToken.setIssuedAt(token.getIssuedAt());
             accessToken.setExpiresAt(token.getExpiresAt());
 
+            log.info("Validated accessTokenId: [{}] and userId: [{}]", accessToken.getId(), accessToken.getUser().getId());
+
             return accessToken;
         } catch (DefaultException ex) {
             log.error("Error validating accessToken. Exception: [{}]", ex.getErrorResponse());

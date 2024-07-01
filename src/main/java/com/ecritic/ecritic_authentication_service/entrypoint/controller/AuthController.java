@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.ZoneOffset;
+
+import static java.util.Objects.isNull;
 
 @RestController
 @RequestMapping("/auth")
@@ -43,9 +44,13 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(responseData);
     }
 
-    @PostMapping("/introspect")
+    @PostMapping("/token/introspect")
     public ResponseEntity<AuthorizationResponseData> introspect(@RequestHeader("Authorization") String jwToken) {
-        AccessToken accessToken = decryptAccessTokenUseCase.execute(extractToken(jwToken));
+        if (isNull(jwToken)) {
+            throw new UnauthorizedAccessException(ErrorResponseCode.ECRITICAUTH_03);
+        }
+
+        AccessToken accessToken = decryptAccessTokenUseCase.execute(jwToken);
 
         AuthorizationResponseData authorizationResponseData = AuthorizationResponseData.builder()
                 .accessToken(accessToken.getJwt())
@@ -54,13 +59,5 @@ public class AuthController {
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(authorizationResponseData);
-    }
-
-    private String extractToken(String bearerToken) {
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-
-        throw new UnauthorizedAccessException(ErrorResponseCode.ECRITICAUTH_03);
     }
 }
