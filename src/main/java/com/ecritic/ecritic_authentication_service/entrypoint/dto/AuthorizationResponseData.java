@@ -1,5 +1,6 @@
 package com.ecritic.ecritic_authentication_service.entrypoint.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,6 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AuthorizationResponseData {
 
     @JsonProperty("access_token")
@@ -24,8 +26,8 @@ public class AuthorizationResponseData {
     private String tokenType;
 
     @JsonProperty("expires_in")
-    private int expiresIn;
+    private Integer expiresIn;
 
     @JsonProperty("refresh_expires_in")
-    private int refreshExpiresIn;
+    private Integer refreshExpiresIn;
 }
