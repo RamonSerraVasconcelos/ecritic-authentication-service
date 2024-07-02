@@ -10,5 +10,5 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface UserClient {
 
     @RequestMapping(method = RequestMethod.GET, value = "/auth/info")
-    UserEntity getUserAuthorizationInfo(@RequestParam("email") String email);
+    UserEntity getUserAuthorizationInfo(@RequestParam("email") String email, @RequestParam("userId") String userId);
 }

@@ -4,7 +4,7 @@ import com.ecritic.ecritic_authentication_service.core.model.AccessToken;
 import com.ecritic.ecritic_authentication_service.core.model.AuthorizationData;
 import com.ecritic.ecritic_authentication_service.core.model.RefreshToken;
 import com.ecritic.ecritic_authentication_service.core.model.User;
-import com.ecritic.ecritic_authentication_service.core.usecase.boundary.FindUserByEmailBoundary;
+import com.ecritic.ecritic_authentication_service.core.usecase.boundary.FindUserBoundary;
 import com.ecritic.ecritic_authentication_service.exception.BusinessViolationException;
 import com.ecritic.ecritic_authentication_service.exception.handler.ErrorResponseCode;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ import java.util.Optional;
 @Slf4j
 public class SignInUserUseCase {
 
-    private final FindUserByEmailBoundary findUserByEmailBoundary;
+    private final FindUserBoundary findUserBoundary;
 
     private final GenerateAccessTokenUseCase generateAccessTokenUseCase;
 
@@ -30,7 +30,7 @@ public class SignInUserUseCase {
     public AuthorizationData execute(String email, String password) {
         log.info("Signing in user with email [{}]", email);
 
-        Optional<User> userOptional = findUserByEmailBoundary.execute(email);
+        Optional<User> userOptional = findUserBoundary.execute(email, null);
 
         if (userOptional.isEmpty()) {
             log.error("User with email [{}] not found", email);
