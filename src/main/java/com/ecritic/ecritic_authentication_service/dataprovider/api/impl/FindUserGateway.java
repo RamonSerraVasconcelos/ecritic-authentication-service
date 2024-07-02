@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 import java.util.UUID;
 
+import static java.util.Objects.nonNull;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -22,10 +24,12 @@ public class FindUserGateway implements FindUserBoundary {
     private final UserEntityMapper userEntityMapper;
 
     public Optional<User> execute(String email, UUID userId) {
-        log.info("Retrieving user authorization info for email [{}]", email);
+        log.info("Retrieving user authorization info for email [{}] or userId: [{}]", email, userId);
 
         try {
-            UserEntity userEntity = userClient.getUserAuthorizationInfo(email, userId.toString());
+            String userIdStr = nonNull(userId) ? userId.toString() : null;
+
+            UserEntity userEntity = userClient.getUserAuthorizationInfo(email, userIdStr);
 
             return Optional.of(userEntityMapper.userEntityToUser(userEntity));
         } catch (Exception ex) {

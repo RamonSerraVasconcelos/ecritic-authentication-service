@@ -8,6 +8,7 @@ import com.ecritic.ecritic_authentication_service.core.model.Token;
 import com.ecritic.ecritic_authentication_service.core.model.User;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.FindRefreshTokenByIdBoundary;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.FindUserBoundary;
+import com.ecritic.ecritic_authentication_service.core.usecase.boundary.SaveRefreshTokenBoundary;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.ValidateJwtTokenBoundary;
 import com.ecritic.ecritic_authentication_service.exception.DefaultException;
 import com.ecritic.ecritic_authentication_service.exception.UnauthorizedAccessException;
@@ -40,6 +41,8 @@ public class RefreshUserTokenUseCase {
 
     private final GenerateRefreshTokenUseCase generateRefreshTokenUseCase;
 
+    private final SaveRefreshTokenBoundary saveRefreshTokenBoundary;
+
     private final ApplicationProperties applicationProperties;
 
     public AuthorizationData execute(String jwtRefreshToken) {
@@ -61,6 +64,9 @@ public class RefreshUserTokenUseCase {
 
             AccessToken accessToken = generateAccessTokenUseCase.execute(user);
             RefreshToken refreshToken = generateRefreshTokenUseCase.execute(user);
+
+            savedRefreshToken.setActive(false);
+            saveRefreshTokenBoundary.execute(savedRefreshToken);
 
             return AuthorizationData.builder()
                     .accessToken(accessToken)
