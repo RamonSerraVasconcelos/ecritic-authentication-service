@@ -7,6 +7,7 @@ spring:
     mongodb:
       uri: ${ECRITIC_MONGO_URL:mongodb://root:root@localhost:27018/ecritic?authSource=admin}
       database: ecritic
+      auto-index-creation: true
     redis:
       host: ${REDIS_HOST:127.0.0.1}
       port: ${REDIS_PORT:6379}

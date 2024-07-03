@@ -1,7 +1,7 @@
 package com.ecritic.ecritic_authentication_service.dataprovider.api.impl;
 
 import com.ecritic.ecritic_authentication_service.core.model.User;
-import com.ecritic.ecritic_authentication_service.core.usecase.boundary.FindUserByEmailBoundary;
+import com.ecritic.ecritic_authentication_service.core.usecase.boundary.FindUserBoundary;
 import com.ecritic.ecritic_authentication_service.dataprovider.api.client.UserClient;
 import com.ecritic.ecritic_authentication_service.dataprovider.api.entity.UserEntity;
 import com.ecritic.ecritic_authentication_service.dataprovider.api.mapper.UserEntityMapper;
@@ -10,21 +10,26 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.UUID;
+
+import static java.util.Objects.nonNull;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class FindUserByEmailGateway implements FindUserByEmailBoundary {
+public class FindUserGateway implements FindUserBoundary {
 
     private final UserClient userClient;
 
     private final UserEntityMapper userEntityMapper;
 
-    public Optional<User> execute(String email) {
-        log.info("Retrieving user authorization info for email [{}]", email);
+    public Optional<User> execute(String email, UUID userId) {
+        log.info("Retrieving user authorization info for email [{}] or userId: [{}]", email, userId);
 
         try {
-            UserEntity userEntity = userClient.getUserAuthorizationInfo(email);
+            String userIdStr = nonNull(userId) ? userId.toString() : null;
+
+            UserEntity userEntity = userClient.getUserAuthorizationInfo(email, userIdStr);
 
             return Optional.of(userEntityMapper.userEntityToUser(userEntity));
         } catch (Exception ex) {
