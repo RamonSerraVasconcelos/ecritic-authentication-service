@@ -3,8 +3,11 @@ package com.ecritic.ecritic_authentication_service.core.usecase;
 import com.ecritic.ecritic_authentication_service.config.properties.ApplicationProperties;
 import com.ecritic.ecritic_authentication_service.core.model.AccessToken;
 import com.ecritic.ecritic_authentication_service.core.model.Token;
+import com.ecritic.ecritic_authentication_service.core.usecase.boundary.CheckBlacklistedUserBoundary;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.ValidateJwtTokenBoundary;
 import com.ecritic.ecritic_authentication_service.exception.DefaultException;
+import com.ecritic.ecritic_authentication_service.exception.UnauthorizedAccessException;
+import com.ecritic.ecritic_authentication_service.exception.handler.ErrorResponseCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,8 @@ public class ValidateAccessTokenUseCase {
 
     private final ValidateJwtTokenBoundary validateJwtTokenBoundary;
 
+    private final CheckBlacklistedUserBoundary checkBlacklistedUserBoundary;
+
     private final ApplicationProperties applicationProperties;
 
     public AccessToken execute(String jwtToken) {
@@ -27,6 +32,13 @@ public class ValidateAccessTokenUseCase {
 
         try {
             Token token = validateJwtTokenBoundary.execute(jwtToken, getSecretKey());
+
+            boolean isUserBlacklisted = checkBlacklistedUserBoundary.isUserBlacklisted(token.getUser().getId());
+
+            if (isUserBlacklisted) {
+                log.error("User [{}] is blacklisted", token.getUser().getId());
+                throw new UnauthorizedAccessException(ErrorResponseCode.ECRITICAUTH_03);
+            }
 
             AccessToken accessToken = new AccessToken();
             accessToken.setId(token.getId());
