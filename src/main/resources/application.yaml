@@ -10,7 +10,7 @@ spring:
       auto-index-creation: true
     redis:
       host: ${REDIS_HOST:127.0.0.1}
-      port: ${REDIS_PORT:6379}
+      port: ${REDIS_PORT:6380}
       password: ${REDIS_PASSWORD:af1ce60c0f7}
   kafka:
     bootstrap-servers: ${ECRITIC_KAFKA_BOOTSTRAP_SERVERS:localhost:9093}
