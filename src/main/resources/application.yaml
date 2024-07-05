@@ -24,6 +24,10 @@ spring:
       jwtExpiration: ${ECRITIC_JWT_EXPIRATION:600}
       jwtRefreshExpiration: ${ECRITIC_JWT_REFRESH_EXPIRATION:604800}
 
+logging:
+  level:
+    com.ecritic.ecritic_authentication_service.dataprovider.api.client: DEBUG
+
 clients:
   user:
     name: users-client
