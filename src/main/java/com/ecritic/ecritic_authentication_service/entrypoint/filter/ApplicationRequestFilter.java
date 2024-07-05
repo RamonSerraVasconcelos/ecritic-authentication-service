@@ -1,5 +1,7 @@
 package com.ecritic.ecritic_authentication_service.entrypoint.filter;
 
+import com.ecritic.ecritic_authentication_service.config.properties.ApplicationRequestHeaders;
+import com.ecritic.ecritic_authentication_service.config.properties.ThreadRequestProperties;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +23,9 @@ public class ApplicationRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         RequestHeaders headers = getHeaders(request);
 
-        response.setHeader("X-Request-Id", headers.getRequestId());
+        response.setHeader(ApplicationRequestHeaders.REQUEST_ID.getValue(), headers.getRequestId());
+
+        ThreadRequestProperties.setRequestId(headers.getRequestId());
 
         logRequest(request, headers);
         filterChain.doFilter(request, response);
@@ -36,7 +40,7 @@ public class ApplicationRequestFilter extends OncePerRequestFilter {
 
         return RequestHeaders.builder()
                 .requestId(requestId)
-                .authorization(request.getHeader("Authorization"))
+                .authorization(request.getHeader(ApplicationRequestHeaders.AUTHORIZATION.getValue()))
                 .build();
     }
 
