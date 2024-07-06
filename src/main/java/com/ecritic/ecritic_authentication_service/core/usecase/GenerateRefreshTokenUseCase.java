@@ -56,7 +56,7 @@ public class GenerateRefreshTokenUseCase {
         }
     }
 
-    public SecretKey getSecretKey() {
+    private SecretKey getSecretKey() {
         byte[] secretBytes = Base64.getDecoder().decode(applicationProperties.getJwtRefreshSecret());
         return new SecretKeySpec(secretBytes, "HmacSHA256");
     }

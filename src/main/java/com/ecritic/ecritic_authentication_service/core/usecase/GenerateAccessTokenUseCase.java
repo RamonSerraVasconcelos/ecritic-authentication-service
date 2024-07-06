@@ -50,7 +50,7 @@ public class GenerateAccessTokenUseCase {
         }
     }
 
-    public SecretKey getSecretKey() {
+    private SecretKey getSecretKey() {
         byte[] secretBytes = Base64.getDecoder().decode(applicationProperties.getJwtSecret());
         return new SecretKeySpec(secretBytes, "HmacSHA256");
     }
