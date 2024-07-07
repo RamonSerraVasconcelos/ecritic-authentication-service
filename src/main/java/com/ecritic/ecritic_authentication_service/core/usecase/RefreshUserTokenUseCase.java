@@ -31,7 +31,6 @@ public class RefreshUserTokenUseCase {
 
     private final SaveRefreshTokenBoundary saveRefreshTokenBoundary;
 
-
     public AuthorizationData execute(String jwtRefreshToken) {
         log.info("Starting refresh user token process");
 

@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class UserEntity {
+public class UserEntityResponse {
 
     private String id;
     private String email;

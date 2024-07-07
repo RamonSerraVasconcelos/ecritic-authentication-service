@@ -5,6 +5,7 @@ import com.ecritic.ecritic_authentication_service.core.model.RefreshToken;
 import com.ecritic.ecritic_authentication_service.core.model.Token;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.FindRefreshTokenByIdBoundary;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.ValidateJwtTokenBoundary;
+import com.ecritic.ecritic_authentication_service.exception.DefaultException;
 import com.ecritic.ecritic_authentication_service.exception.UnauthorizedAccessException;
 import com.ecritic.ecritic_authentication_service.exception.handler.ErrorResponseCode;
 import lombok.RequiredArgsConstructor;
@@ -32,14 +33,22 @@ public class ValidateRefreshTokenUseCase {
     private final ApplicationProperties applicationProperties;
 
     public RefreshToken execute(String jwtRefreshToken) {
-        Token token = validateJwtTokenBoundary.execute(jwtRefreshToken, getSecretKey());
+        try {
+            Token token = validateJwtTokenBoundary.execute(jwtRefreshToken, getSecretKey());
 
-        log.info("Validating tokenId [{}] and userId: [{}]", token.getId(), token.getUser().getId());
+            log.info("Validating tokenId [{}] and userId: [{}]", token.getId(), token.getUser().getId());
 
-        RefreshToken savedRefreshToken = getRefreshToken(token.getId());
-        validateTokenFields(token, savedRefreshToken);
+            RefreshToken savedRefreshToken = getRefreshToken(token.getId());
+            validateTokenFields(token, savedRefreshToken);
 
-        return savedRefreshToken;
+            return savedRefreshToken;
+        } catch (DefaultException ex) {
+            log.error("Error validating refresh token. Exception: [{}]", ex.getErrorResponse());
+            throw ex;
+        } catch (Exception ex) {
+            log.error("Error validating refresh token", ex);
+            throw new UnauthorizedAccessException(ErrorResponseCode.ECRITICAUTH_03);
+        }
     }
 
     public SecretKey getSecretKey() {
@@ -67,8 +76,8 @@ public class ValidateRefreshTokenUseCase {
                 token.getIssuer().equals(savedToken.getIssuer()),
                 token.getAud().equals(savedToken.getAud()),
                 token.getUser().getId().equals(savedToken.getUser().getId()),
-                token.getIssuedAt().equals(savedToken.getIssuedAt().truncatedTo(ChronoUnit.SECONDS)),
-                token.getExpiresAt().equals(savedToken.getExpiresAt().truncatedTo(ChronoUnit.SECONDS))
+                token.getIssuedAt().truncatedTo(ChronoUnit.SECONDS).equals(savedToken.getIssuedAt().truncatedTo(ChronoUnit.SECONDS)),
+                token.getExpiresAt().truncatedTo(ChronoUnit.SECONDS).equals(savedToken.getExpiresAt().truncatedTo(ChronoUnit.SECONDS))
         );
 
         for (Boolean condition : conditions) {
