@@ -15,11 +15,11 @@ public class CacheStateGateway implements CacheStateBoundary {
 
     private final Jedis jedis;
 
-    public void execute(String state) {
+    public void execute(String state, String clientId) {
         log.info("Caching state: [{}]", state);
 
         try {
-            jedis.set(state, state);
+            jedis.set(state, clientId);
             jedis.pexpire(state, TimeUnit.MINUTES.toMillis(5));
         } catch (Exception ex) {
             log.error("Error caching state: [{}] in cache", state, ex);

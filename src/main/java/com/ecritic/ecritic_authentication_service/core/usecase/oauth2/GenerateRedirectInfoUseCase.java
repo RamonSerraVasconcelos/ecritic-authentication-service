@@ -69,7 +69,9 @@ public class GenerateRedirectInfoUseCase {
                 url = urlBuilder.toString();
             }
 
-            cacheStateBoundary.execute(state);
+            cacheStateBoundary.execute(state, authServer.getClientId());
+
+            log.info("Generated redirect info with clientId: [{}]", authServer.getClientId());
 
             return URI.create(url);
         } catch (DefaultException ex) {
