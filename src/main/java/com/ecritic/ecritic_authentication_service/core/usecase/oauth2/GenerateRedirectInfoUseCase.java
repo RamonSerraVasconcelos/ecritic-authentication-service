@@ -34,44 +34,20 @@ public class GenerateRedirectInfoUseCase {
         log.info("Generating redirect info for auth server [{}]", authServerName);
 
         try {
-            Optional<AuthorizationServer> optionalAuthServer = findAuthServerByNameBoundary.execute(authServerName);
+            AuthorizationServer authorizationServer = getAuthServer(authServerName);
 
-            if (optionalAuthServer.isEmpty()) {
-                log.warn("Auth server {} not found", authServerName);
-                throw new EntityNotFoundException(ErrorResponseCode.ECRITICAUTH_09);
-            }
-
-            AuthorizationServer authServer = optionalAuthServer.get();
-
-            if (!authServer.getRedirectUris().contains(redirectUri)) {
+            if (!authorizationServer.getRedirectUris().contains(redirectUri)) {
                 log.error("Redirect URI [{}] not allowed for auth server [{}]", redirectUri, authServerName);
                 throw new BusinessViolationException(ErrorResponseCode.ECRITICAUTH_10);
             }
 
             String state = generateRandomState();
 
-            String url = authServer.getAuthEndpoint() +
-                    "?client_id=" + authServer.getClientId() +
-                    "&response_type=" + authServer.getResponseType() +
-                    "&redirect_uri=" + redirectUri +
-                    "&scope=" + authServer.getFormattedScopes() +
-                    "&state=" + state;
+            String url = buildBaseUri(authorizationServer, redirectUri.toString(), state);
 
-            if (nonNull(authServer.getAdditionalParams()) && !authServer.getAdditionalParams().isEmpty()) {
-                log.info("Adding additional params in request");
+            cacheStateBoundary.execute(state, authorizationServer.getClientId());
 
-                StringBuilder urlBuilder = new StringBuilder(url);
-
-                authServer.getAdditionalParams().forEach((key, value) -> {
-                    urlBuilder.append("&").append(key).append("=").append(value);
-                });
-
-                url = urlBuilder.toString();
-            }
-
-            cacheStateBoundary.execute(state, authServer.getClientId());
-
-            log.info("Generated redirect info with clientId: [{}]", authServer.getClientId());
+            log.info("Generated redirect info with clientId: [{}]", authorizationServer.getClientId());
 
             return URI.create(url);
         } catch (DefaultException ex) {
@@ -81,6 +57,40 @@ public class GenerateRedirectInfoUseCase {
             log.error("Error generating redirect info for auth server [{}]", authServerName, ex);
             throw new InternalErrorException(ErrorResponseCode.ECRITICAUTH_11);
         }
+    }
+
+    private AuthorizationServer getAuthServer(String name) {
+        Optional<AuthorizationServer> optionalAuthServer = findAuthServerByNameBoundary.execute(name);
+
+        if (optionalAuthServer.isEmpty()) {
+            log.warn("Auth server {} not found", name);
+            throw new EntityNotFoundException(ErrorResponseCode.ECRITICAUTH_09);
+        }
+
+        return optionalAuthServer.get();
+    }
+
+    private String buildBaseUri(AuthorizationServer authorizationServer, String redirectUri, String state) {
+        String url = authorizationServer.getAuthEndpoint() +
+                "?client_id=" + authorizationServer.getClientId() +
+                "&response_type=" + authorizationServer.getResponseType() +
+                "&redirect_uri=" + redirectUri +
+                "&scope=" + authorizationServer.getFormattedScopes() +
+                "&state=" + state;
+
+        if (nonNull(authorizationServer.getAdditionalParams()) && !authorizationServer.getAdditionalParams().isEmpty()) {
+            log.info("Adding additional params in request");
+
+            StringBuilder urlBuilder = new StringBuilder(url);
+
+            authorizationServer.getAdditionalParams().forEach((key, value) -> {
+                urlBuilder.append("&").append(key).append("=").append(value);
+            });
+
+            url = urlBuilder.toString();
+        }
+
+        return url;
     }
 
     private String generateRandomState() {
