@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -29,4 +30,5 @@ public class AuthorizationServerEntity {
     private URI tokenEndpoint;
     private Set<URI> redirectUris;
     private List<String> scopes;
+    private Map<String, String> additionalParams;
 }

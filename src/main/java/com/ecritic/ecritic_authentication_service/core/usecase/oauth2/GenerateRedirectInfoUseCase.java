@@ -17,6 +17,8 @@ import java.security.SecureRandom;
 import java.util.Optional;
 import java.util.random.RandomGenerator;
 
+import static java.util.Objects.nonNull;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -54,6 +56,18 @@ public class GenerateRedirectInfoUseCase {
                     "&redirect_uri=" + redirectUri +
                     "&scope=" + authServer.getFormattedScopes() +
                     "&state=" + state;
+
+            if (nonNull(authServer.getAdditionalParams()) && !authServer.getAdditionalParams().isEmpty()) {
+                log.info("Adding additional params in request");
+
+                StringBuilder urlBuilder = new StringBuilder(url);
+
+                authServer.getAdditionalParams().forEach((key, value) -> {
+                    urlBuilder.append("&").append(key).append("=").append(value);
+                });
+
+                url = urlBuilder.toString();
+            }
 
             cacheStateBoundary.execute(state);
 
