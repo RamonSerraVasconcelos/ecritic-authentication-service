@@ -3,6 +3,7 @@ package com.ecritic.ecritic_authentication_service.exception.handler;
 import com.ecritic.ecritic_authentication_service.exception.BusinessViolationException;
 import com.ecritic.ecritic_authentication_service.exception.EntityConflictException;
 import com.ecritic.ecritic_authentication_service.exception.EntityNotFoundException;
+import com.ecritic.ecritic_authentication_service.exception.InternalErrorException;
 import com.ecritic.ecritic_authentication_service.exception.ResourceViolationException;
 import com.ecritic.ecritic_authentication_service.exception.UnauthorizedAccessException;
 import lombok.extern.slf4j.Slf4j;
@@ -88,5 +89,10 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(BusinessViolationException.class)
     public ResponseEntity<ErrorResponse> businessViolationExceptionHandler(BusinessViolationException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getErrorResponse());
+    }
+
+    @ExceptionHandler(InternalErrorException.class)
+    public ResponseEntity<ErrorResponse> internalErrorException(InternalErrorException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getErrorResponse());
     }
 }
