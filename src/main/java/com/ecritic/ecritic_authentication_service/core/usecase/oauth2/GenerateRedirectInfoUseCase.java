@@ -1,5 +1,6 @@
 package com.ecritic.ecritic_authentication_service.core.usecase.oauth2;
 
+import com.ecritic.ecritic_authentication_service.core.model.AuthorizationRequest;
 import com.ecritic.ecritic_authentication_service.core.model.AuthorizationServer;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.CacheStateBoundary;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.FindAuthServerByNameBoundary;
@@ -41,11 +42,15 @@ public class GenerateRedirectInfoUseCase {
                 throw new BusinessViolationException(ErrorResponseCode.ECRITICAUTH_10);
             }
 
+            AuthorizationRequest authorizationRequest = AuthorizationRequest.builder()
+                    .clientId(authorizationServer.getClientId())
+                    .redirectUri(redirectUri)
+                    .build();
+
             String state = generateRandomState();
+            cacheStateBoundary.execute(state, authorizationRequest);
 
             String url = buildBaseUri(authorizationServer, redirectUri.toString(), state);
-
-            cacheStateBoundary.execute(state, authorizationServer.getClientId());
 
             log.info("Generated redirect info with clientId: [{}]", authorizationServer.getClientId());
 
