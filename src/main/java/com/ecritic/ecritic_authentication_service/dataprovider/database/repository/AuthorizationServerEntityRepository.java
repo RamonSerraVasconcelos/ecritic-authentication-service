@@ -6,4 +6,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface AuthorizationServerEntityRepository extends MongoRepository<AuthorizationServerEntity, String> {
 
     AuthorizationServerEntity findByName(String name);
+
+    AuthorizationServerEntity findByClientId(String clientId);
 }
