@@ -26,10 +26,12 @@ public class ValidateCallbackUseCase {
 
     private final GenerateExternalTokenUseCase generateExternalTokenUseCase;
 
-    public void execute(String code, String state) {
+    public void execute(String code, String state, String error, String errorDescription) {
         log.info("Validating authorization callback with state: [{}]", state);
 
         try {
+            checkForErrors(error, errorDescription);
+
             Optional<AuthorizationRequest> authorizationRequestOptional = findCachedStateBoundary.execute(state);
 
             if (authorizationRequestOptional.isEmpty()) {
@@ -53,6 +55,13 @@ public class ValidateCallbackUseCase {
         } catch (Exception ex) {
             log.error("Error validating authorization callback with state: [{}]", state, ex);
             throw new InternalErrorException(ErrorResponseCode.ECRITICAUTH_11);
+        }
+    }
+
+    private void checkForErrors(String error, String errorDescription) {
+        if (error != null || errorDescription != null) {
+            log.warn("Authorization server callback returned error: [{}] and error description: [{}]", error, errorDescription);
+            throw new BusinessViolationException(ErrorResponseCode.ECRITICAUTH_14);
         }
     }
 }

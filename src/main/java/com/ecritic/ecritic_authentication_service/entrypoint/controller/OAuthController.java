@@ -36,8 +36,12 @@ public class OAuthController {
     }
 
     @GetMapping(path = "/callback")
-    public ResponseEntity<Void> callback(@RequestParam("code") String code, @RequestParam("state") String state) {
-        validateCallbackUseCase.execute(code, state);
+    public ResponseEntity<Void> callback(@RequestParam(value = "code", required = false) String code,
+                                         @RequestParam(value = "state", required = false) String state,
+                                         @RequestParam(value = "error", required = false) String error,
+                                         @RequestParam(value = "error_description", required = false) String errorDescription) {
+
+        validateCallbackUseCase.execute(code, state, error, errorDescription);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
