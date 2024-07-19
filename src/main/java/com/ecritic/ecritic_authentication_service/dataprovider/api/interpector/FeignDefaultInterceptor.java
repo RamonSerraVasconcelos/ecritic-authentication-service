@@ -4,9 +4,7 @@ import com.ecritic.ecritic_authentication_service.config.properties.ApplicationR
 import com.ecritic.ecritic_authentication_service.config.properties.ThreadRequestProperties;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
-import org.springframework.stereotype.Component;
 
-@Component
 public class FeignDefaultInterceptor implements RequestInterceptor {
 
     @Override

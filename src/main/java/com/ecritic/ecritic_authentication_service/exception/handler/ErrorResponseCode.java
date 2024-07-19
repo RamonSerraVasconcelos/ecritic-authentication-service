@@ -18,7 +18,8 @@ public enum ErrorResponseCode {
     ECRITICAUTH_09("ECRITICAUTH-09", "Authorization server not found", "The requested authorization server does not exist"),
     ECRITICAUTH_10("ECRITICAUTH-10", "Invalid Redirect URI", "Invalid Redirect URI"),
     ECRITICAUTH_11("ECRITICAUTH-11", "Internal server error", "An internal error occured while executing this operation"),
-    ECRITICAUTH_12("ECRITICAUTH-12", "Invalid authorization info", "The provided auth info is invalid and validation failed");
+    ECRITICAUTH_12("ECRITICAUTH-12", "Invalid authorization info", "The provided auth info is invalid and validation failed"),
+    ECRITICAUTH_13("ECRITICAUTH-13", "Error while executing external request", "An error occurred while trying to call an external Api");
 
     private final String code;
     private final String message;

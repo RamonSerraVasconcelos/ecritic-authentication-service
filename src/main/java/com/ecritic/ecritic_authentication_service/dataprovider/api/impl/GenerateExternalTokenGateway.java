@@ -5,12 +5,19 @@ import com.ecritic.ecritic_authentication_service.core.model.AuthorizationServer
 import com.ecritic.ecritic_authentication_service.core.model.ExternalToken;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.GenerateExternalTokenBoundary;
 import com.ecritic.ecritic_authentication_service.dataprovider.api.client.AuthorizationClient;
+import com.ecritic.ecritic_authentication_service.dataprovider.api.config.AuthServerErrorDecoder;
 import com.ecritic.ecritic_authentication_service.dataprovider.api.entity.ExternalTokenEntity;
 import com.ecritic.ecritic_authentication_service.dataprovider.api.interpector.AuthorizationInterceptor;
 import com.ecritic.ecritic_authentication_service.dataprovider.api.mapper.ExternalTokenEntityMapper;
+import com.ecritic.ecritic_authentication_service.exception.BusinessViolationException;
+import com.ecritic.ecritic_authentication_service.exception.ClientException;
+import com.ecritic.ecritic_authentication_service.exception.handler.ErrorResponseCode;
 import feign.Feign;
+import feign.Logger;
 import feign.Target;
+import feign.slf4j.Slf4jLogger;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
@@ -26,10 +33,9 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 @Import(FeignClientsConfiguration.class)
 public class GenerateExternalTokenGateway implements GenerateExternalTokenBoundary {
-
-    private final Feign.Builder feignBuilder;
 
     private final ObjectFactory<HttpMessageConverters> messageConverters;
 
@@ -40,21 +46,32 @@ public class GenerateExternalTokenGateway implements GenerateExternalTokenBounda
     private static final String GRANT_TYPE = "authorization_code";
 
     public ExternalToken execute(AuthorizationRequest authorizationRequest, AuthorizationServer authorizationServer, String code) {
-        AuthorizationClient authorizationClient = getFeignClient(authorizationServer.getTokenEndpoint().toString());
+        try {
+            AuthorizationClient authorizationClient = getFeignClient(authorizationServer.getTokenEndpoint().toString());
 
-        Map<String, ?> params = buildParams(authorizationRequest, authorizationServer, code);
+            Map<String, ?> params = buildParams(authorizationRequest, authorizationServer, code);
 
-        ExternalTokenEntity externalTokenEntity = authorizationClient.generateExternalToken(authorizationRequest.getRedirectUri(), params);
+            ExternalTokenEntity externalTokenEntity = authorizationClient.generateExternalToken(authorizationRequest.getRedirectUri(), params);
 
-        return externalTokenEntityMapper.externalTokenEntityToExternalToken(externalTokenEntity);
+            return externalTokenEntityMapper.externalTokenEntityToExternalToken(externalTokenEntity);
+        } catch (ClientException ex) {
+            log.error("Error while making request to Authorization Server. Error: [{}]", ex.getResponse());
+            throw new BusinessViolationException(ErrorResponseCode.ECRITICAUTH_13);
+        } catch (Exception ex) {
+            log.error("Error while building request to Authorization Server", ex);
+            throw ex;
+        }
     }
 
     public AuthorizationClient getFeignClient(String baseUrl) {
-        return feignBuilder.
-                requestInterceptor(new AuthorizationInterceptor(() -> baseUrl))
-                .contract(new SpringMvcContract())
+        return Feign.builder()
                 .encoder(new SpringEncoder(messageConverters))
                 .decoder(new SpringDecoder(messageConverters, customizers))
+                .logLevel(Logger.Level.FULL)
+                .logger(new Slf4jLogger(AuthorizationClient.class))
+                .requestInterceptor(new AuthorizationInterceptor(() -> baseUrl))
+                .contract(new SpringMvcContract())
+                .errorDecoder(new AuthServerErrorDecoder())
                 .target(Target.EmptyTarget.create(AuthorizationClient.class));
     }
 
