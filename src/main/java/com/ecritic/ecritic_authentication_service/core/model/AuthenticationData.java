@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class AuthorizationData {
+public class AuthenticationData {
 
     private AccessToken accessToken;
     private RefreshToken refreshToken;

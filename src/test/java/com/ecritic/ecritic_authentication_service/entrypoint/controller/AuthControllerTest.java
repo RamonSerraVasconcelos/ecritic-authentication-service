@@ -1,13 +1,13 @@
 package com.ecritic.ecritic_authentication_service.entrypoint.controller;
 
 import com.ecritic.ecritic_authentication_service.core.fixture.AuthorizationDataFixture;
-import com.ecritic.ecritic_authentication_service.core.model.AuthorizationData;
+import com.ecritic.ecritic_authentication_service.core.model.AuthenticationData;
 import com.ecritic.ecritic_authentication_service.core.usecase.DecryptAccessTokenUseCase;
 import com.ecritic.ecritic_authentication_service.core.usecase.RefreshUserTokenUseCase;
 import com.ecritic.ecritic_authentication_service.core.usecase.SignInUserUseCase;
 import com.ecritic.ecritic_authentication_service.dataprovider.api.fixture.AuthorizationResponseDataFixture;
-import com.ecritic.ecritic_authentication_service.entrypoint.dto.AuthorizationResponseData;
-import com.ecritic.ecritic_authentication_service.entrypoint.mapper.AuthorizationResponseDataMapper;
+import com.ecritic.ecritic_authentication_service.entrypoint.dto.AuthenticationResponseData;
+import com.ecritic.ecritic_authentication_service.entrypoint.mapper.AuthenticationResponseDataMapper;
 import com.ecritic.ecritic_authentication_service.exception.handler.ApplicationExceptionHandler;
 import com.ecritic.ecritic_authentication_service.exception.handler.ErrorResponseCode;
 import org.junit.jupiter.api.Test;
@@ -44,18 +44,18 @@ class AuthControllerTest {
     private RefreshUserTokenUseCase refreshUserTokenUseCase;
 
     @MockBean
-    private AuthorizationResponseDataMapper authorizationResponseDataMapper;
+    private AuthenticationResponseDataMapper authenticationResponseDataMapper;
 
     @Test
     void givenRequestToLoginEndpoint_thenLogAndReturnAuthorizationInfoData() throws Exception {
-        AuthorizationData authorizationData = AuthorizationDataFixture.load();
-        AuthorizationResponseData authorizationResponseData = AuthorizationResponseDataFixture.load();
+        AuthenticationData authenticationData = AuthorizationDataFixture.load();
+        AuthenticationResponseData authenticationResponseData = AuthorizationResponseDataFixture.load();
 
         String email = "email@email.com";
         String password = "password";
 
-        when(signInUserUseCase.execute(any(), any())).thenReturn(authorizationData);
-        when(authorizationResponseDataMapper.authorizationDataToAuthorizationResponseData(any())).thenReturn(authorizationResponseData);
+        when(signInUserUseCase.execute(any(), any())).thenReturn(authenticationData);
+        when(authenticationResponseDataMapper.authorizationDataToAuthorizationResponseData(any())).thenReturn(authenticationResponseData);
 
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
                 .post("/auth/login")
@@ -65,11 +65,11 @@ class AuthControllerTest {
 
         mockMvc.perform(requestBuilder)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").value(authorizationResponseData.getAccessToken()))
-                .andExpect(jsonPath("$.refreshToken").value(authorizationResponseData.getRefreshToken()))
-                .andExpect(jsonPath("$.tokenType").value(authorizationResponseData.getTokenType()))
-                .andExpect(jsonPath("$.expiresIn").value(authorizationResponseData.getExpiresIn()))
-                .andExpect(jsonPath("$.refreshExpiresIn").value(authorizationResponseData.getRefreshExpiresIn()));
+                .andExpect(jsonPath("$.accessToken").value(authenticationResponseData.getAccessToken()))
+                .andExpect(jsonPath("$.refreshToken").value(authenticationResponseData.getRefreshToken()))
+                .andExpect(jsonPath("$.tokenType").value(authenticationResponseData.getTokenType()))
+                .andExpect(jsonPath("$.expiresIn").value(authenticationResponseData.getExpiresIn()))
+                .andExpect(jsonPath("$.refreshExpiresIn").value(authenticationResponseData.getRefreshExpiresIn()));
 
     }
 

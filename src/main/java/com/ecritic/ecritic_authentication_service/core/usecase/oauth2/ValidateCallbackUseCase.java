@@ -1,12 +1,18 @@
 package com.ecritic.ecritic_authentication_service.core.usecase.oauth2;
 
+import com.ecritic.ecritic_authentication_service.core.model.AccessToken;
+import com.ecritic.ecritic_authentication_service.core.model.AuthenticationData;
 import com.ecritic.ecritic_authentication_service.core.model.AuthorizationRequest;
 import com.ecritic.ecritic_authentication_service.core.model.AuthorizationServer;
 import com.ecritic.ecritic_authentication_service.core.model.ExternalToken;
 import com.ecritic.ecritic_authentication_service.core.model.IdToken;
+import com.ecritic.ecritic_authentication_service.core.model.RefreshToken;
 import com.ecritic.ecritic_authentication_service.core.model.User;
+import com.ecritic.ecritic_authentication_service.core.usecase.GenerateAccessTokenUseCase;
+import com.ecritic.ecritic_authentication_service.core.usecase.GenerateRefreshTokenUseCase;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.FindAuthServerByClientIdBoundary;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.FindStateBoundary;
+import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.SaveExternalTokenBoundary;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.UpsertUserBoundary;
 import com.ecritic.ecritic_authentication_service.exception.BusinessViolationException;
 import com.ecritic.ecritic_authentication_service.exception.DefaultException;
@@ -33,7 +39,13 @@ public class ValidateCallbackUseCase {
 
     private final UpsertUserBoundary upsertUserBoundary;
 
-    public void execute(String code, String state, String error, String errorDescription) {
+    private final SaveExternalTokenBoundary saveExternalTokenBoundary;
+
+    private final GenerateAccessTokenUseCase generateAccessTokenUseCase;
+
+    private final GenerateRefreshTokenUseCase generateRefreshTokenUseCase;
+
+    public AuthenticationData execute(String code, String state, String error, String errorDescription) {
         log.info("Validating authorization callback with state: [{}]", state);
 
         try {
@@ -60,6 +72,24 @@ public class ValidateCallbackUseCase {
             IdToken idToken = validateIdTokenUseCase.execute(externalToken.getIdToken(), authorizationServer.get());
 
             User user = upsertUserBoundary.execute(idToken.getEmail(), idToken.getName());
+
+            if (!user.isActive()) {
+                log.error("User with id [{}] is not active", user.getId());
+                throw new BusinessViolationException(ErrorResponseCode.ECRITICAUTH_08);
+            }
+
+            externalToken.setUserId(user.getId());
+            saveExternalTokenBoundary.execute(externalToken);
+
+            AccessToken accessToken = generateAccessTokenUseCase.execute(user);
+            RefreshToken refreshToken = generateRefreshTokenUseCase.execute(user);
+
+            log.info("Validated callback and generated authentication data for user: [{}]", user.getId());
+
+            return AuthenticationData.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .build();
         } catch (DefaultException ex) {
             log.error("Error validating authorization callback with state: [{}]. Error: [{}]", state, ex.getErrorResponse());
             throw ex;

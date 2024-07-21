@@ -1,8 +1,11 @@
 package com.ecritic.ecritic_authentication_service.entrypoint.controller;
 
+import com.ecritic.ecritic_authentication_service.core.model.AuthenticationData;
 import com.ecritic.ecritic_authentication_service.core.usecase.oauth2.GenerateRedirectInfoUseCase;
 import com.ecritic.ecritic_authentication_service.core.usecase.oauth2.ValidateCallbackUseCase;
+import com.ecritic.ecritic_authentication_service.entrypoint.dto.AuthenticationResponseData;
 import com.ecritic.ecritic_authentication_service.entrypoint.dto.AuthorizationUriResponse;
+import com.ecritic.ecritic_authentication_service.entrypoint.mapper.AuthenticationResponseDataMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,6 +27,8 @@ public class OAuthController {
 
     private final ValidateCallbackUseCase validateCallbackUseCase;
 
+    private final AuthenticationResponseDataMapper authenticationResponseDataMapper;
+
     @PostMapping(path = "/login", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<AuthorizationUriResponse> login(@RequestParam("authServerName") String authServerName, @RequestParam("redirectUri") String redirectUri) {
         URI authorizationUri = generateRedirectInfoUseCase.execute(authServerName, URI.create(redirectUri));
@@ -36,12 +41,15 @@ public class OAuthController {
     }
 
     @GetMapping(path = "/callback")
-    public ResponseEntity<Void> callback(@RequestParam(value = "code", required = false) String code,
-                                         @RequestParam(value = "state", required = false) String state,
-                                         @RequestParam(value = "error", required = false) String error,
-                                         @RequestParam(value = "error_description", required = false) String errorDescription) {
+    public ResponseEntity<AuthenticationResponseData> callback(@RequestParam(value = "code", required = false) String code,
+                                                               @RequestParam(value = "state", required = false) String state,
+                                                               @RequestParam(value = "error", required = false) String error,
+                                                               @RequestParam(value = "error_description", required = false) String errorDescription) {
 
-        validateCallbackUseCase.execute(code, state, error, errorDescription);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        AuthenticationData authenticationData = validateCallbackUseCase.execute(code, state, error, errorDescription);
+
+        AuthenticationResponseData responseData = authenticationResponseDataMapper.authorizationDataToAuthorizationResponseData(authenticationData);
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseData);
     }
 }

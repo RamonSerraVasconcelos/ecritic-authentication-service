@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AuthorizationResponseData {
+public class AuthenticationResponseData {
 
     private String accessToken;
 
