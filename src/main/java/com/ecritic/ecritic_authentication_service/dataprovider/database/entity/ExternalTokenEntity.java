@@ -1,11 +1,15 @@
-package com.ecritic.ecritic_authentication_service.core.model;
+package com.ecritic.ecritic_authentication_service.dataprovider.database.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -13,13 +17,12 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
-public class ExternalToken {
+@Document(collection = "externalToken")
+public class ExternalTokenEntity {
 
     private String clientId;
-    private UUID userId;
-    private String accessToken;
+    private String userId;
     private String refreshToken;
-    private String idToken;
     private String tokenType;
     private String scope;
     private Long expiresIn;

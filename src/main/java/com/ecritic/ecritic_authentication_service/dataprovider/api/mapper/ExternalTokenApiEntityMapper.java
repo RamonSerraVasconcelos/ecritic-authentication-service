@@ -5,7 +5,7 @@ import com.ecritic.ecritic_authentication_service.dataprovider.api.entity.Extern
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface ExternalTokenEntityMapper {
+public interface ExternalTokenApiEntityMapper {
 
     ExternalToken externalTokenEntityToExternalToken(ExternalTokenEntity externalTokenEntity);
 }

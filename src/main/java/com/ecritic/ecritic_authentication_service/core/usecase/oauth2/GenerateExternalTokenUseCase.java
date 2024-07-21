@@ -4,6 +4,7 @@ import com.ecritic.ecritic_authentication_service.core.model.AuthorizationReques
 import com.ecritic.ecritic_authentication_service.core.model.AuthorizationServer;
 import com.ecritic.ecritic_authentication_service.core.model.ExternalToken;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.GenerateExternalTokenBoundary;
+import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.SaveExternalTokenBoundary;
 import com.ecritic.ecritic_authentication_service.exception.DefaultException;
 import com.ecritic.ecritic_authentication_service.exception.InternalErrorException;
 import com.ecritic.ecritic_authentication_service.exception.handler.ErrorResponseCode;

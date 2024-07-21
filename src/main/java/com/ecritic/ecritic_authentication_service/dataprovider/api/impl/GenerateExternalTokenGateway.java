@@ -7,8 +7,7 @@ import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.G
 import com.ecritic.ecritic_authentication_service.dataprovider.api.client.AuthorizationClient;
 import com.ecritic.ecritic_authentication_service.dataprovider.api.config.AuthServerErrorDecoder;
 import com.ecritic.ecritic_authentication_service.dataprovider.api.entity.ExternalTokenEntity;
-import com.ecritic.ecritic_authentication_service.dataprovider.api.interpector.AuthorizationInterceptor;
-import com.ecritic.ecritic_authentication_service.dataprovider.api.mapper.ExternalTokenEntityMapper;
+import com.ecritic.ecritic_authentication_service.dataprovider.api.mapper.ExternalTokenApiEntityMapper;
 import com.ecritic.ecritic_authentication_service.exception.BusinessViolationException;
 import com.ecritic.ecritic_authentication_service.exception.ClientException;
 import com.ecritic.ecritic_authentication_service.exception.handler.ErrorResponseCode;
@@ -41,19 +40,19 @@ public class GenerateExternalTokenGateway implements GenerateExternalTokenBounda
 
     private final ObjectProvider<HttpMessageConverterCustomizer> customizers;
 
-    private final ExternalTokenEntityMapper externalTokenEntityMapper;
+    private final ExternalTokenApiEntityMapper externalTokenApiEntityMapper;
 
     private static final String GRANT_TYPE = "authorization_code";
 
     public ExternalToken execute(AuthorizationRequest authorizationRequest, AuthorizationServer authorizationServer, String code) {
         try {
-            AuthorizationClient authorizationClient = getFeignClient(authorizationServer.getTokenEndpoint().toString());
+            AuthorizationClient authorizationClient = getFeignClient();
 
             Map<String, ?> params = buildParams(authorizationRequest, authorizationServer, code);
 
-            ExternalTokenEntity externalTokenEntity = authorizationClient.generateExternalToken(authorizationRequest.getRedirectUri(), params);
+            ExternalTokenEntity externalTokenEntity = authorizationClient.generateExternalToken(authorizationServer.getTokenEndpoint(), params);
 
-            return externalTokenEntityMapper.externalTokenEntityToExternalToken(externalTokenEntity);
+            return externalTokenApiEntityMapper.externalTokenEntityToExternalToken(externalTokenEntity);
         } catch (ClientException ex) {
             log.error("Error while making request to Authorization Server. Error: [{}]", ex.getResponse());
             throw new BusinessViolationException(ErrorResponseCode.ECRITICAUTH_13);
@@ -63,13 +62,12 @@ public class GenerateExternalTokenGateway implements GenerateExternalTokenBounda
         }
     }
 
-    public AuthorizationClient getFeignClient(String baseUrl) {
+    public AuthorizationClient getFeignClient() {
         return Feign.builder()
                 .encoder(new SpringEncoder(messageConverters))
                 .decoder(new SpringDecoder(messageConverters, customizers))
                 .logLevel(Logger.Level.FULL)
                 .logger(new Slf4jLogger(AuthorizationClient.class))
-                .requestInterceptor(new AuthorizationInterceptor(() -> baseUrl))
                 .contract(new SpringMvcContract())
                 .errorDecoder(new AuthServerErrorDecoder())
                 .target(Target.EmptyTarget.create(AuthorizationClient.class));
