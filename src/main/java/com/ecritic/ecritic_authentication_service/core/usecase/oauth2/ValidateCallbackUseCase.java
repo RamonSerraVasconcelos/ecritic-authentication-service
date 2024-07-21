@@ -3,8 +3,11 @@ package com.ecritic.ecritic_authentication_service.core.usecase.oauth2;
 import com.ecritic.ecritic_authentication_service.core.model.AuthorizationRequest;
 import com.ecritic.ecritic_authentication_service.core.model.AuthorizationServer;
 import com.ecritic.ecritic_authentication_service.core.model.ExternalToken;
+import com.ecritic.ecritic_authentication_service.core.model.IdToken;
+import com.ecritic.ecritic_authentication_service.core.model.User;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.FindAuthServerByClientIdBoundary;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.FindStateBoundary;
+import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.UpsertUserBoundary;
 import com.ecritic.ecritic_authentication_service.exception.BusinessViolationException;
 import com.ecritic.ecritic_authentication_service.exception.DefaultException;
 import com.ecritic.ecritic_authentication_service.exception.InternalErrorException;
@@ -25,6 +28,10 @@ public class ValidateCallbackUseCase {
     private final FindAuthServerByClientIdBoundary findAuthServerByClientIdBoundary;
 
     private final GenerateExternalTokenUseCase generateExternalTokenUseCase;
+
+    private final ValidateIdTokenUseCase validateIdTokenUseCase;
+
+    private final UpsertUserBoundary upsertUserBoundary;
 
     public void execute(String code, String state, String error, String errorDescription) {
         log.info("Validating authorization callback with state: [{}]", state);
@@ -49,6 +56,10 @@ public class ValidateCallbackUseCase {
             }
 
             ExternalToken externalToken = generateExternalTokenUseCase.execute(authorizationRequest, authorizationServer.get(), code);
+
+            IdToken idToken = validateIdTokenUseCase.execute(externalToken.getIdToken(), authorizationServer.get());
+
+            User user = upsertUserBoundary.execute(idToken.getEmail(), idToken.getName());
         } catch (DefaultException ex) {
             log.error("Error validating authorization callback with state: [{}]. Error: [{}]", state, ex.getErrorResponse());
             throw ex;

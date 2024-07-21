@@ -26,6 +26,7 @@ public class AuthorizationServer {
     private String responseType;
     private URI authEndpoint;
     private URI tokenEndpoint;
+    private URI jwksEndpoint;
     private Set<URI> redirectUris;
     private List<String> scopes;
     private Map<String, String> additionalParams;
