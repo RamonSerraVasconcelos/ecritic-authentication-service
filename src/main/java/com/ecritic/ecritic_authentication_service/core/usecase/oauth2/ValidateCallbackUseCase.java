@@ -10,6 +10,7 @@ import com.ecritic.ecritic_authentication_service.core.model.RefreshToken;
 import com.ecritic.ecritic_authentication_service.core.model.User;
 import com.ecritic.ecritic_authentication_service.core.usecase.GenerateAccessTokenUseCase;
 import com.ecritic.ecritic_authentication_service.core.usecase.GenerateRefreshTokenUseCase;
+import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.DeleteStateBoundary;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.FindAuthServerByClientIdBoundary;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.FindStateBoundary;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.SaveExternalTokenBoundary;
@@ -40,6 +41,8 @@ public class ValidateCallbackUseCase {
     private final UpsertUserBoundary upsertUserBoundary;
 
     private final SaveExternalTokenBoundary saveExternalTokenBoundary;
+
+    private final DeleteStateBoundary deleteStateBoundary;
 
     private final GenerateAccessTokenUseCase generateAccessTokenUseCase;
 
@@ -83,6 +86,8 @@ public class ValidateCallbackUseCase {
 
             AccessToken accessToken = generateAccessTokenUseCase.execute(user);
             RefreshToken refreshToken = generateRefreshTokenUseCase.execute(user);
+
+            deleteStateBoundary.execute(state);
 
             log.info("Validated callback and generated authentication data for user: [{}]", user.getId());
 
