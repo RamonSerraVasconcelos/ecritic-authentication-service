@@ -25,5 +25,4 @@ public class ExternalTokenEntity {
     private String refreshToken;
     private String tokenType;
     private String scope;
-    private Long expiresIn;
 }
