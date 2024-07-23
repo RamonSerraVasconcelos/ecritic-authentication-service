@@ -8,10 +8,6 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -20,6 +16,8 @@ import java.util.UUID;
 @Document(collection = "externalToken")
 public class ExternalTokenEntity {
 
+    @Id
+    private String id;
     private String clientId;
     private String userId;
     private String refreshToken;

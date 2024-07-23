@@ -15,6 +15,7 @@ import java.util.UUID;
 @Builder
 public class ExternalToken {
 
+    private UUID id;
     private String clientId;
     private UUID userId;
     private String accessToken;

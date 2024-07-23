@@ -11,6 +11,7 @@ import com.ecritic.ecritic_authentication_service.core.model.User;
 import com.ecritic.ecritic_authentication_service.core.usecase.GenerateAccessTokenUseCase;
 import com.ecritic.ecritic_authentication_service.core.usecase.GenerateRefreshTokenUseCase;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.DeleteStateBoundary;
+import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.DeleteUserExternalTokensBoundary;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.FindAuthServerByClientIdBoundary;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.FindStateBoundary;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.oauth2.SaveExternalTokenBoundary;
@@ -24,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +49,8 @@ public class ValidateCallbackUseCase {
     private final GenerateAccessTokenUseCase generateAccessTokenUseCase;
 
     private final GenerateRefreshTokenUseCase generateRefreshTokenUseCase;
+
+    private final DeleteUserExternalTokensBoundary deleteUserExternalTokensBoundary;
 
     public AuthenticationData execute(String code, String state, String error, String errorDescription) {
         log.info("Validating authorization callback with state: [{}]", state);
@@ -81,6 +85,8 @@ public class ValidateCallbackUseCase {
                 throw new BusinessViolationException(ErrorResponseCode.ECRITICAUTH_08);
             }
 
+            externalToken.setId(UUID.randomUUID());
+            externalToken.setClientId(authorizationRequest.getClientId());
             externalToken.setUserId(user.getId());
             saveExternalTokenBoundary.execute(externalToken);
 
@@ -88,6 +94,7 @@ public class ValidateCallbackUseCase {
             RefreshToken refreshToken = generateRefreshTokenUseCase.execute(user);
 
             deleteStateBoundary.execute(state);
+            deleteUserExternalTokensBoundary.execute(user.getId(), authorizationRequest.getClientId(), externalToken.getId());
 
             log.info("Validated callback and generated authentication data for user: [{}]", user.getId());
 
