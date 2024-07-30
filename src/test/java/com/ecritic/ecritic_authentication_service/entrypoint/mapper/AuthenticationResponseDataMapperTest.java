@@ -1,6 +1,6 @@
 package com.ecritic.ecritic_authentication_service.entrypoint.mapper;
 
-import com.ecritic.ecritic_authentication_service.core.fixture.AuthorizationDataFixture;
+import com.ecritic.ecritic_authentication_service.core.fixture.AuthenticationDataFixture;
 import com.ecritic.ecritic_authentication_service.core.model.AuthenticationData;
 import com.ecritic.ecritic_authentication_service.entrypoint.dto.AuthenticationResponseData;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +21,7 @@ class AuthenticationResponseDataMapperTest {
 
     @Test
     void givenAuthorizationData_thenReturnAuthorizationResponseData() {
-        AuthenticationData authenticationData = AuthorizationDataFixture.load();
+        AuthenticationData authenticationData = AuthenticationDataFixture.load();
 
         AuthenticationResponseData authenticationResponseData = authenticationResponseDataMapper.authorizationDataToAuthorizationResponseData(authenticationData);
 

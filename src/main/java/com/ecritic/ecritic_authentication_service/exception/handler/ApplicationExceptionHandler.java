@@ -33,7 +33,14 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> httpMessageNotReadableExceptionHandler(HttpMessageNotReadableException ex) {
         log.warn("Request INFO - Response returning violations found: [{}]", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildResponseError(ErrorResponseCode.ECRITICAUTH_01, ex.getMessage()));
+
+        String detail = ex.getMessage();
+
+        if (detail.contains("Required request body is missing")) {
+            detail = "Required request body is missing";
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildResponseError(ErrorResponseCode.ECRITICAUTH_01, detail));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
