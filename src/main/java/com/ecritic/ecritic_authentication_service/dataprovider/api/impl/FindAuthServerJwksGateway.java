@@ -46,7 +46,7 @@ public class FindAuthServerJwksGateway implements FindAuthServerJwksBoundary {
         }
     }
 
-    public AuthorizationClient getFeignClient() {
+    private AuthorizationClient getFeignClient() {
         return Feign.builder()
                 .encoder(new SpringEncoder(messageConverters))
                 .decoder(new SpringDecoder(messageConverters, customizers))
