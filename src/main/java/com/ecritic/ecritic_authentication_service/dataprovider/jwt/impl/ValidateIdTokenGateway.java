@@ -47,6 +47,9 @@ public class ValidateIdTokenGateway implements ValidateIdTokenBoundary {
         } catch (ParseException | JOSEException ex) {
             log.error("Error parsing id token", ex);
             throw new BusinessViolationException(ErrorResponseCode.ECRITICAUTH_12);
+        } catch (Exception ex) {
+            log.error("Error validating id token", ex);
+            throw new BusinessViolationException(ErrorResponseCode.ECRITICAUTH_12);
         }
     }
 
