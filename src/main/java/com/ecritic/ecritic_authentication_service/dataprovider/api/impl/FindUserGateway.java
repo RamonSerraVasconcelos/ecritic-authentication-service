@@ -5,6 +5,9 @@ import com.ecritic.ecritic_authentication_service.core.usecase.boundary.FindUser
 import com.ecritic.ecritic_authentication_service.dataprovider.api.client.UserClient;
 import com.ecritic.ecritic_authentication_service.dataprovider.api.entity.UserEntityResponse;
 import com.ecritic.ecritic_authentication_service.dataprovider.api.mapper.UserEntityMapper;
+import com.ecritic.ecritic_authentication_service.exception.BusinessViolationException;
+import com.ecritic.ecritic_authentication_service.exception.ClientException;
+import com.ecritic.ecritic_authentication_service.exception.handler.ErrorResponseCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -32,6 +35,9 @@ public class FindUserGateway implements FindUserBoundary {
             UserEntityResponse userEntityResponse = userClient.getUserAuthorizationInfo(email, userIdStr);
 
             return Optional.of(userEntityMapper.userEntityToUser(userEntityResponse));
+        } catch (ClientException ex) {
+            log.error("Error while making request to Users Service. Error: [{}]", ex.getClientErrorResponse());
+            throw new BusinessViolationException(ErrorResponseCode.ECRITICAUTH_13);
         } catch (Exception ex) {
             log.error("Error retrieving user authorization info", ex);
             return Optional.empty();

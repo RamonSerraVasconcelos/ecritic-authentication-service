@@ -1,7 +1,7 @@
 package com.ecritic.ecritic_authentication_service.core.usecase;
 
 import com.ecritic.ecritic_authentication_service.core.model.AccessToken;
-import com.ecritic.ecritic_authentication_service.core.model.AuthorizationData;
+import com.ecritic.ecritic_authentication_service.core.model.AuthenticationData;
 import com.ecritic.ecritic_authentication_service.core.model.RefreshToken;
 import com.ecritic.ecritic_authentication_service.core.model.User;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.FindUserBoundary;
@@ -28,7 +28,7 @@ public class SignInUserUseCase {
 
     private final BCryptPasswordEncoder bcrypt;
 
-    public AuthorizationData execute(String email, String password) {
+    public AuthenticationData execute(String email, String password) {
         log.info("Signing in user with email [{}]", email);
 
         try {
@@ -56,7 +56,7 @@ public class SignInUserUseCase {
             AccessToken accessToken = generateAccessTokenUseCase.execute(user);
             RefreshToken refreshToken = generateRefreshTokenUseCase.execute(user);
 
-            return AuthorizationData.builder()
+            return AuthenticationData.builder()
                     .accessToken(accessToken)
                     .refreshToken(refreshToken)
                     .build();

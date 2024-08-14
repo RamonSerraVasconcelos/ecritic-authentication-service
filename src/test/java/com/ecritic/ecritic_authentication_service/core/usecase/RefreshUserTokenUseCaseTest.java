@@ -4,7 +4,7 @@ import com.ecritic.ecritic_authentication_service.core.fixture.AccessTokenFixtur
 import com.ecritic.ecritic_authentication_service.core.fixture.RefreshTokenFixture;
 import com.ecritic.ecritic_authentication_service.core.fixture.UserFixture;
 import com.ecritic.ecritic_authentication_service.core.model.AccessToken;
-import com.ecritic.ecritic_authentication_service.core.model.AuthorizationData;
+import com.ecritic.ecritic_authentication_service.core.model.AuthenticationData;
 import com.ecritic.ecritic_authentication_service.core.model.RefreshToken;
 import com.ecritic.ecritic_authentication_service.core.model.User;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.FindUserBoundary;
@@ -60,7 +60,7 @@ class RefreshUserTokenUseCaseTest {
         when(generateRefreshTokenUseCase.execute(user)).thenReturn(refreshToken);
         when(saveRefreshTokenBoundary.execute(refreshToken)).thenReturn(refreshToken);
 
-        AuthorizationData authorizationData = refreshUserTokenUseCase.execute(jwtToken);
+        AuthenticationData authenticationData = refreshUserTokenUseCase.execute(jwtToken);
 
         verify(validateRefreshTokenUseCase).execute(jwtToken);
         verify(findUserBoundary).execute(null, refreshToken.getUser().getId());
@@ -68,8 +68,8 @@ class RefreshUserTokenUseCaseTest {
         verify(generateRefreshTokenUseCase).execute(user);
         verify(saveRefreshTokenBoundary).execute(refreshToken);
 
-        assertThat(authorizationData.getAccessToken()).isEqualTo(accessToken);
-        assertThat(authorizationData.getRefreshToken()).isEqualTo(refreshToken);
+        assertThat(authenticationData.getAccessToken()).isEqualTo(accessToken);
+        assertThat(authenticationData.getRefreshToken()).isEqualTo(refreshToken);
     }
 
     @Test

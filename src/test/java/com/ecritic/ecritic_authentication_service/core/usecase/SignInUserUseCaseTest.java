@@ -4,7 +4,7 @@ import com.ecritic.ecritic_authentication_service.core.fixture.AccessTokenFixtur
 import com.ecritic.ecritic_authentication_service.core.fixture.RefreshTokenFixture;
 import com.ecritic.ecritic_authentication_service.core.fixture.UserFixture;
 import com.ecritic.ecritic_authentication_service.core.model.AccessToken;
-import com.ecritic.ecritic_authentication_service.core.model.AuthorizationData;
+import com.ecritic.ecritic_authentication_service.core.model.AuthenticationData;
 import com.ecritic.ecritic_authentication_service.core.model.RefreshToken;
 import com.ecritic.ecritic_authentication_service.core.model.User;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.FindUserBoundary;
@@ -55,16 +55,16 @@ class SignInUserUseCaseTest {
         when(generateAccessTokenUseCase.execute(user)).thenReturn(accessToken);
         when(generateRefreshTokenUseCase.execute(user)).thenReturn(refreshToken);
 
-        AuthorizationData authorizationData = signInUserUseCase.execute(user.getEmail(), user.getPassword());
+        AuthenticationData authenticationData = signInUserUseCase.execute(user.getEmail(), user.getPassword());
 
         verify(findUserBoundary).execute(user.getEmail(), null);
         verify(bcrypt).matches(any(), any());
         verify(generateAccessTokenUseCase).execute(user);
         verify(generateRefreshTokenUseCase).execute(user);
 
-        assertThat(authorizationData).isNotNull();
-        assertThat(authorizationData.getAccessToken()).usingRecursiveComparison().isEqualTo(accessToken);
-        assertThat(authorizationData.getRefreshToken()).usingRecursiveComparison().isEqualTo(refreshToken);
+        assertThat(authenticationData).isNotNull();
+        assertThat(authenticationData.getAccessToken()).usingRecursiveComparison().isEqualTo(accessToken);
+        assertThat(authenticationData.getRefreshToken()).usingRecursiveComparison().isEqualTo(refreshToken);
     }
 
     @Test

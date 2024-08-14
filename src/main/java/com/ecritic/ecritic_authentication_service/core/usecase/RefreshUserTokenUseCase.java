@@ -1,7 +1,7 @@
 package com.ecritic.ecritic_authentication_service.core.usecase;
 
 import com.ecritic.ecritic_authentication_service.core.model.AccessToken;
-import com.ecritic.ecritic_authentication_service.core.model.AuthorizationData;
+import com.ecritic.ecritic_authentication_service.core.model.AuthenticationData;
 import com.ecritic.ecritic_authentication_service.core.model.RefreshToken;
 import com.ecritic.ecritic_authentication_service.core.model.User;
 import com.ecritic.ecritic_authentication_service.core.usecase.boundary.FindUserBoundary;
@@ -31,7 +31,7 @@ public class RefreshUserTokenUseCase {
 
     private final SaveRefreshTokenBoundary saveRefreshTokenBoundary;
 
-    public AuthorizationData execute(String jwtRefreshToken) {
+    public AuthenticationData execute(String jwtRefreshToken) {
         log.info("Starting refresh user token process");
 
         try {
@@ -49,7 +49,7 @@ public class RefreshUserTokenUseCase {
             savedRefreshToken.setActive(false);
             saveRefreshTokenBoundary.execute(savedRefreshToken);
 
-            return AuthorizationData.builder()
+            return AuthenticationData.builder()
                     .accessToken(accessToken)
                     .refreshToken(refreshToken)
                     .build();

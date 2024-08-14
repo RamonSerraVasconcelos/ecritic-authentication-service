@@ -3,6 +3,7 @@ package com.ecritic.ecritic_authentication_service.exception.handler;
 import com.ecritic.ecritic_authentication_service.exception.BusinessViolationException;
 import com.ecritic.ecritic_authentication_service.exception.EntityConflictException;
 import com.ecritic.ecritic_authentication_service.exception.EntityNotFoundException;
+import com.ecritic.ecritic_authentication_service.exception.InternalErrorException;
 import com.ecritic.ecritic_authentication_service.exception.ResourceViolationException;
 import com.ecritic.ecritic_authentication_service.exception.UnauthorizedAccessException;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +33,14 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> httpMessageNotReadableExceptionHandler(HttpMessageNotReadableException ex) {
         log.warn("Request INFO - Response returning violations found: [{}]", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildResponseError(ErrorResponseCode.ECRITICAUTH_01, ex.getMessage()));
+
+        String detail = ex.getMessage();
+
+        if (detail.contains("Required request body is missing")) {
+            detail = "Required request body is missing";
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildResponseError(ErrorResponseCode.ECRITICAUTH_01, detail));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -88,5 +96,10 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(BusinessViolationException.class)
     public ResponseEntity<ErrorResponse> businessViolationExceptionHandler(BusinessViolationException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getErrorResponse());
+    }
+
+    @ExceptionHandler(InternalErrorException.class)
+    public ResponseEntity<ErrorResponse> internalErrorException(InternalErrorException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getErrorResponse());
     }
 }

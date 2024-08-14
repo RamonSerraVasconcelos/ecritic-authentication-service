@@ -6,13 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder
-public class AuthorizationData {
+public class IdToken extends Token {
 
-    private AccessToken accessToken;
-    private RefreshToken refreshToken;
+    private String email;
+    private String name;
+    private String picture;
 }

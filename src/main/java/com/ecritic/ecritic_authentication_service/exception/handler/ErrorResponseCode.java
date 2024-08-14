@@ -14,7 +14,13 @@ public enum ErrorResponseCode {
     ECRITICAUTH_05("ECRITICAUTH-05", "Resource conflict", "Resource conflict"),
     ECRITICAUTH_06("ECRITICAUTH-06", "Resource violation", "Resource violation"),
     ECRITICAUTH_07("ECRITICAUTH-07", "Unauthorized", "Invalid email or password"),
-    ECRITICAUTH_08("ECRITICAUTH-08", "Banned user", "User is currently banned");
+    ECRITICAUTH_08("ECRITICAUTH-08", "Banned user", "User is currently banned"),
+    ECRITICAUTH_09("ECRITICAUTH-09", "Authorization server not found", "The requested authorization server does not exist"),
+    ECRITICAUTH_10("ECRITICAUTH-10", "Invalid Redirect URI", "Invalid Redirect URI"),
+    ECRITICAUTH_11("ECRITICAUTH-11", "Internal server error", "An internal error occured while executing this operation"),
+    ECRITICAUTH_12("ECRITICAUTH-12", "Invalid authorization info", "The provided auth info is invalid and validation failed"),
+    ECRITICAUTH_13("ECRITICAUTH-13", "Error while executing external request", "An error occurred while trying to call an external Api"),
+    ECRITICAUTH_14("ECRITICAUTH-14", "Invalid authorization info", "The requested authorization server returned an error on callback");
 
     private final String code;
     private final String message;

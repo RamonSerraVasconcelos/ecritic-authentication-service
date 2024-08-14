@@ -1,11 +1,11 @@
 package com.ecritic.ecritic_authentication_service.core.fixture;
 
-import com.ecritic.ecritic_authentication_service.core.model.AuthorizationData;
+import com.ecritic.ecritic_authentication_service.core.model.AuthenticationData;
 
-public class AuthorizationDataFixture {
+public class AuthenticationDataFixture {
 
-    public static AuthorizationData load() {
-        return AuthorizationData.builder()
+    public static AuthenticationData load() {
+        return AuthenticationData.builder()
                 .accessToken(AccessTokenFixture.load())
                 .refreshToken(RefreshTokenFixture.load())
                 .build();

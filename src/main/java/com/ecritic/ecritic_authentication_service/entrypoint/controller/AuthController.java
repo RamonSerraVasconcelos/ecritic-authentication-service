@@ -1,13 +1,13 @@
 package com.ecritic.ecritic_authentication_service.entrypoint.controller;
 
 import com.ecritic.ecritic_authentication_service.core.model.AccessToken;
-import com.ecritic.ecritic_authentication_service.core.model.AuthorizationData;
+import com.ecritic.ecritic_authentication_service.core.model.AuthenticationData;
 import com.ecritic.ecritic_authentication_service.core.usecase.DecryptAccessTokenUseCase;
 import com.ecritic.ecritic_authentication_service.core.usecase.RefreshUserTokenUseCase;
 import com.ecritic.ecritic_authentication_service.core.usecase.SignInUserUseCase;
-import com.ecritic.ecritic_authentication_service.entrypoint.dto.AuthorizationResponseData;
+import com.ecritic.ecritic_authentication_service.entrypoint.dto.AuthenticationResponseData;
 import com.ecritic.ecritic_authentication_service.entrypoint.dto.RefreshTokenRequest;
-import com.ecritic.ecritic_authentication_service.entrypoint.mapper.AuthorizationResponseDataMapper;
+import com.ecritic.ecritic_authentication_service.entrypoint.mapper.AuthenticationResponseDataMapper;
 import com.ecritic.ecritic_authentication_service.exception.ResourceViolationException;
 import com.ecritic.ecritic_authentication_service.exception.UnauthorizedAccessException;
 import com.ecritic.ecritic_authentication_service.exception.handler.ErrorResponseCode;
@@ -40,49 +40,49 @@ public class AuthController {
 
     private final RefreshUserTokenUseCase refreshUserTokenUseCase;
 
-    private final AuthorizationResponseDataMapper authorizationResponseDataMapper;
+    private final AuthenticationResponseDataMapper authenticationResponseDataMapper;
 
     private final Validator validator;
 
     @PostMapping(path = "/login", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<AuthorizationResponseData> login(@RequestParam("email") String email,
-                                                           @RequestParam("password") String password) {
+    public ResponseEntity<AuthenticationResponseData> login(@RequestParam("email") String email,
+                                                            @RequestParam("password") String password) {
 
-        AuthorizationData authorizationData = signInUserUseCase.execute(email, password);
+        AuthenticationData authenticationData = signInUserUseCase.execute(email, password);
 
-        AuthorizationResponseData responseData = authorizationResponseDataMapper.authorizationDataToAuthorizationResponseData(authorizationData);
+        AuthenticationResponseData responseData = authenticationResponseDataMapper.authorizationDataToAuthorizationResponseData(authenticationData);
 
         return ResponseEntity.status(HttpStatus.OK).body(responseData);
     }
 
     @PostMapping(path = "/token")
-    public ResponseEntity<AuthorizationResponseData> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
+    public ResponseEntity<AuthenticationResponseData> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
         Set<ConstraintViolation<RefreshTokenRequest>> violations = validator.validate(refreshTokenRequest);
         if (!violations.isEmpty()) {
             throw new ResourceViolationException(violations);
         }
 
-        AuthorizationData authorizationData = refreshUserTokenUseCase.execute(refreshTokenRequest.getRefreshToken());
+        AuthenticationData authenticationData = refreshUserTokenUseCase.execute(refreshTokenRequest.getRefreshToken());
 
-        AuthorizationResponseData responseData = authorizationResponseDataMapper.authorizationDataToAuthorizationResponseData(authorizationData);
+        AuthenticationResponseData responseData = authenticationResponseDataMapper.authorizationDataToAuthorizationResponseData(authenticationData);
 
         return ResponseEntity.status(HttpStatus.OK).body(responseData);
     }
 
     @PostMapping("/token/introspect")
-    public ResponseEntity<AuthorizationResponseData> introspect(@RequestHeader("Authorization") String jwToken) {
+    public ResponseEntity<AuthenticationResponseData> introspect(@RequestHeader("Authorization") String jwToken) {
         if (isNull(jwToken)) {
             throw new UnauthorizedAccessException(ErrorResponseCode.ECRITICAUTH_03);
         }
 
         AccessToken accessToken = decryptAccessTokenUseCase.execute(jwToken);
 
-        AuthorizationResponseData authorizationResponseData = AuthorizationResponseData.builder()
+        AuthenticationResponseData authenticationResponseData = AuthenticationResponseData.builder()
                 .accessToken(accessToken.getJwt())
                 .tokenType("Bearer")
                 .expiresIn((int) accessToken.getExpiresAt().toEpochSecond(ZoneOffset.UTC))
                 .build();
 
-        return ResponseEntity.status(HttpStatus.OK).body(authorizationResponseData);
+        return ResponseEntity.status(HttpStatus.OK).body(authenticationResponseData);
     }
 }
